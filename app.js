@@ -1,5 +1,5 @@
 const express = require('express')
-const stripe = require('stripe')('sk_test_41yXmETy0l1MKY6IfdZm73bZ')
+const stripe = require('stripe')
 const bodyParser = require('body-parser')
 const exphbs = require('express-handlebars')
 
@@ -19,6 +19,22 @@ app.use(express.static(`${__dirname}/public`))
 
 app.get('/', (req, res) => {
     res.render('index')
+})
+
+app.post('/charge', (req, res) => {
+    const amount = 2500
+
+    stripe.customers.create({
+            email: req.body.stripeEmail,
+            source: req.body.stripeToken
+        })
+        .then(customer => stripe.charges.create({
+            amount,
+            description: 'Ticket',
+            currency: 'usd',
+            customer: customer.id
+        }))
+        .then(charge => res.render('success'))
 })
 
 
